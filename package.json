@@ -2,15 +2,10 @@
   "name": "my-trading-app",
   "version": "0.1.0",
   "private": true,
-  "engines": {
-    "node": ">=20"
-  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "deploy": "npx netlify deploy --dir=.next --prod",
-    "deploy:ci": "npx netlify deploy --dir=.next --prod"
+    "start": "next start"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.1.2",
@@ -58,7 +53,7 @@
     "vaul": "^0.9.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^22.20.1",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "autoprefixer": "^10.0.1",

@@ -1,55 +1,34 @@
 'use client';
 
-import { useDigitsTrading } from '../hooks/use-digits-trading';
-import { useDerivWSContext } from '@/components/custom/deriv-ws-provider';
-import { useLogoSrc } from '@/components/custom/logo-src-provider';
-import { DigitsView } from '../components/digits-view';
+import { useEffect, useState } from 'react';
+import { LiveDigits } from '../components/live-digits';
+import { normalizeAppConfig, type DigitsAppConfig } from '../lib/app-config';
 
+/**
+ * Deployed app. Reads the no-code config injected at deploy time
+ * (public/app-config.json). When present, the configurable control styles/order
+ * are applied; when absent, the standard Digits app renders unchanged. Either
+ * way the app is fully functional (real trading + login).
+ */
 export default function DigitsPage() {
-  const logoSrc = useLogoSrc();
-  const { ws, isConnected, isExhausted, auth } = useDerivWSContext();
-  const { authState, accounts, activeAccount, login, signUp, logout, switchAccount } = auth;
+  const [config, setConfig] = useState<DigitsAppConfig | null | undefined>(undefined);
 
-  const trading = useDigitsTrading({ ws, isConnected, isExhausted, isAuthenticated: !!auth.wsUrl, onAuthWSFailed: logout });
+  useEffect(() => {
+    let cancelled = false;
+    const base = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+    fetch(`${base}/app-config.json`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (!cancelled) setConfig(data ? normalizeAppConfig(data) : null);
+      })
+      .catch(() => {
+        if (!cancelled) setConfig(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  return (
-    <DigitsView
-      authState={authState}
-      accounts={accounts}
-      activeAccount={activeAccount}
-      onLogin={login}
-      onSignUp={signUp}
-      onLogout={logout}
-      onSwitchAccount={switchAccount}
-      logoSrc={logoSrc}
-      isConnected={trading.isConnected}
-      isLoading={trading.isLoading}
-      error={trading.error}
-      symbols={trading.symbols}
-      activeSymbol={trading.activeSymbol}
-      selectSymbol={trading.selectSymbol}
-      currentTick={trading.currentTick}
-      lastDigit={trading.lastDigit}
-      digitStats={trading.digitStats}
-      pipSize={trading.pipSize}
-      tradeType={trading.tradeType}
-      setTradeType={trading.setTradeType}
-      contractMode={trading.contractMode}
-      setContractMode={trading.setContractMode}
-      selectedDigit={trading.selectedDigit}
-      setSelectedDigit={trading.setSelectedDigit}
-      stake={trading.stake}
-      setStake={trading.setStake}
-      duration={trading.duration}
-      setDuration={trading.setDuration}
-      durationLimits={trading.durationLimits}
-      proposal={trading.proposal}
-      isProposalLoading={trading.isProposalLoading}
-      buyContract={trading.buyContract}
-      isBuying={trading.isBuying}
-      buyResult={trading.buyResult}
-      buyError={trading.buyError}
-      clearBuyResult={trading.clearBuyResult}
-    />
-  );
+  if (config === undefined) return <div className="min-h-dvh bg-background" />;
+  return <LiveDigits appConfig={config ?? undefined} />;
 }

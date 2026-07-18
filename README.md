@@ -41,41 +41,6 @@ NEXT_PUBLIC_DERIV_ENV=production
 | `NEXT_PUBLIC_DERIV_OAUTH_SCOPES` | Comma-separated OAuth scopes (e.g. `trade,account_manage`) |
 | `NEXT_PUBLIC_DERIV_ENV` | `production` to connect to the live Deriv endpoint; `preview` for staging |
 
-## Step 2b: Set `NETLIFY_AUTH_TOKEN` for CI / scripted deploys
-
-For CI or machines without a local Netlify login, set `NETLIFY_AUTH_TOKEN` before running deploy commands.
-
-On macOS/Linux:
-
-```bash
-export NETLIFY_AUTH_TOKEN=your_netlify_auth_token
-npm run deploy
-```
-
-On Windows PowerShell:
-
-```powershell
-$env:NETLIFY_AUTH_TOKEN = 'your_netlify_auth_token'
-npm run deploy
-```
-
-To create a token:
-
-1. Open https://app.netlify.com/user/applications#personal-access-tokens
-2. Create a new personal access token with `sites:read` and `deployments:write` permissions.
-3. Use that token in `NETLIFY_AUTH_TOKEN`.
-
-## GitHub Actions CI deploy
-
-This repo includes a GitHub Actions workflow at `.github/workflows/deploy.yml`.
-
-To use it, add these repository secrets in GitHub:
-
-- `NETLIFY_AUTH_TOKEN` — your Netlify personal access token
-- `NETLIFY_SITE_ID` — your Netlify site ID (`ac42b83c-5f8f-48da-bc23-c46004ba38ba`)
-
-The workflow runs on pushes to `main` and can also be triggered manually.
-
 For local development, copy `.env.production` to `.env.local` — Next.js will load `.env.local` automatically and it takes precedence over `.env.production`.
 
 ## Step 3: Local Development
